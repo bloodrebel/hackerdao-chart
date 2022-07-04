@@ -3,9 +3,11 @@ import { Line } from "react-chartjs-2";
 import { useEffect, useState } from "react";
 import { getAssets } from "./api/ApiCalls";
 import { AssetData, IGetAssetsParams } from "./models/assetModels";
+import { format } from "date-fns";
+import { formatChartDate } from "./utils/dateFormater";
 
 const defaultGetAssetParams: IGetAssetsParams = {
-  pg: 1,
+  pg: 58,
   tvl_min: 50000,
   sort: "tvlStaked",
   sort_order: "desc",
@@ -18,8 +20,8 @@ function App() {
 
   useEffect(() => {
     getAssets(defaultGetAssetParams).then((resp) => {
-      createAprChartData(resp.data[0]);
-      createTvlChartData(resp.data[0]);
+      //createAprChartData(resp.data[0]);
+      setTvlChartData(createTvlChartData(resp.data[0]));
     });
   }, []);
 
@@ -29,7 +31,7 @@ function App() {
         {aprChartData && <Line data={aprChartData} />}
       </div>
       <div className="chart-wrapper">
-        {tvlChartData && <Line data={tvlChartData} />}
+        {tvlChartData && <Line data={tvlChartData} options={tvlChartOptions} />}
       </div>
     </div>
   );
@@ -42,8 +44,34 @@ const createAprChartData = (assetData: AssetData) => {
     labels: [],
     datasets: [
       {
-        label: "APR dataset",
+        label: "Asset APR",
         data: [],
+        fill: true,
+        backgroundColor: "rgba(175,92,92,0.2)",
+        borderColor: "rgba(175,192,192,1)",
+        responsive: true,
+      },
+    ],
+  };
+};
+
+const createTvlChartData = (assetData: AssetData) => {
+  const tvlStalkedHistory =
+    assetData.selected_farm[0].tvlStakedHistory.reverse();
+  const labels = tvlStalkedHistory.map(
+    (tvlHistory) => new Date(tvlHistory.date)
+  );
+  const data = tvlStalkedHistory.map((tvlHistory) => ({
+    x: new Date(tvlHistory.date),
+    y: tvlHistory.value,
+  }));
+
+  return {
+    labels: labels,
+    datasets: [
+      {
+        label: "Asset TVL",
+        data: data,
         fill: true,
         backgroundColor: "rgba(75,192,192,0.2)",
         borderColor: "rgba(75,192,192,1)",
@@ -53,22 +81,38 @@ const createAprChartData = (assetData: AssetData) => {
   };
 };
 
-const createTvlChartData = (assetData: AssetData) => {
-  const tvlStalkedHistory = assetData.selectedFarm[0].tvlStakedHistory;
-  const labels = tvlStalkedHistory.map((tvlHistory) => tvlHistory.date);
-  const data = tvlStalkedHistory.map((tvlHistory) => tvlHistory.value);
-
-  return {
-    labels: labels,
-    datasets: [
-      {
-        label: "TVL dataset",
-        data: data,
-        fill: true,
-        backgroundColor: "rgba(75,192,192,0.2)",
-        borderColor: "rgba(75,192,192,1)",
-        responsive: true,
+const aprChartOptions: any = {
+  scales: {
+    y: {
+      ticks: {
+        callback: function (value: any) {
+          return `${value}%`;
+        },
       },
-    ],
-  };
+    },
+    x: {
+      type: "time",
+      time: {
+        stepSize: 3,
+      },
+    },
+  },
+};
+
+const tvlChartOptions: any = {
+  scales: {
+    y: {
+      ticks: {
+        callback: function (value: any) {
+          return `${value / 100000000}M`;
+        },
+      },
+    },
+    x: {
+      type: "time",
+      time: {
+        stepSize: 3,
+      },
+    },
+  },
 };

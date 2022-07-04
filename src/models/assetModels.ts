@@ -21,7 +21,7 @@ export interface AssetData {
   dateUpdated: string;
   daysRemaining: null;
 
-  selectedFarm: SelectedFarm[];
+  selected_farm: SelectedFarm[];
 }
 
 export interface SelectedFarm {
@@ -48,9 +48,9 @@ export interface TvlStalkedHistory {
 }
 
 export interface IGetAssetsParams {
-    pg?: number;
-    tvl_min?: number;
-    sort?: string;
-    sort_order?: "asc" | "desc";
-    farms_tvl_staked_gte?: number;
-  }
+  pg?: number;
+  tvl_min?: number;
+  sort?: string;
+  sort_order?: "asc" | "desc";
+  farms_tvl_staked_gte?: number;
+}
