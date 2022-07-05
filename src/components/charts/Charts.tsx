@@ -6,7 +6,7 @@ import { createDate } from "../../utils/dateUtils";
 import "./Charts.css";
 
 const defaultGetAssetParams: IGetAssetsParams = {
-  pg: 55,
+  pg: 56,
   tvl_min: 50000,
   sort: "tvlStaked",
   sort_order: "desc",
@@ -19,8 +19,8 @@ const Charts: React.FC = () => {
 
   useEffect(() => {
     getAssets(defaultGetAssetParams).then((resp) => {
-      setAprChartData(createAprChartData(resp.data[0], 10));
-      setTvlChartData(createTvlChartData(resp.data[0]));
+      setAprChartData(createAprChartData(10));
+      setTvlChartData(createTvlChartData(resp.data));
     });
   }, []);
 
@@ -37,7 +37,7 @@ const Charts: React.FC = () => {
 };
 export default Charts;
 
-const createAprChartData = (assetData: AssetData, lastDays: number) => {
+const createAprChartData = (lastDays: number) => {
   const dates = [];
   const values = [];
   for (let index = lastDays; index >= 1; index--) {
@@ -63,9 +63,12 @@ const createAprChartData = (assetData: AssetData, lastDays: number) => {
   };
 };
 
-const createTvlChartData = (assetData: AssetData) => {
-  const tvlStalkedHistory =
-    assetData.selected_farm[0].tvlStakedHistory.reverse();
+const createTvlChartData = (assetData: AssetData[]) => {
+  if (!Array.isArray(assetData)) return { datasets: [] };
+
+  const asset = assetData[0];
+
+  const tvlStalkedHistory = asset.selected_farm[0].tvlStakedHistory.reverse();
   const labels = tvlStalkedHistory.map(
     (tvlHistory) => new Date(tvlHistory.date)
   );
