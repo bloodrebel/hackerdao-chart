@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import { IApiServiceParams, IQueryParams } from "../models/apiModels";
 
-const baseUrl = "https://api.multifarm.fi/jay_flamingo_random_6ix_vegas";
+const baseUrl = process.env.REACT_APP_API_KEY;
 
 export const apiService = async (params: IApiServiceParams) => {
   const encodedUrl =
@@ -13,8 +13,8 @@ export const apiService = async (params: IApiServiceParams) => {
     method: params.method,
     data: params.body,
     headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
+      Accept: "application/json",
+      "Content-Type": "application/json",
     },
   };
 
